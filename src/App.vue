@@ -17,7 +17,7 @@
         <div id="textareaHours">
           <p v-show="!emptyValues()">Hover to clipboard</p>
           <textarea
-            v-tooltip="{content: textForTooltipClipboard, placement: 'bottom'}"
+            v-tooltip="{content: 'Copied to clipboard', placement: 'bottom'}"
             cols="30"
             rows="10"
             :value="stringTextHour"
@@ -27,7 +27,10 @@
           ></textarea>
         </div>
       </div>
-      <h2>Develop by <a href="//github.com/victorjoao97" target="_blank">João</a></h2>
+      <h2>
+        Develop by
+        <a href="//github.com/victorjoao97" target="_blank">João</a>
+      </h2>
       <div v-if="false">{{hours}} - {{entrada}}</div>
     </div>
   </div>
@@ -46,26 +49,23 @@ export default {
       entrada: "",
       defaultHours: {},
       checkDefaultValues: false,
-      stringTextHour: "",
-      textForTooltipClipboard: "Fill in all fields"
+      stringTextHour: ""
     };
   },
   methods: {
     clearAllInputs() {
       this.hours = {};
       this.typeHours.forEach(typeHour => {
-        delete localStorage[typeHour];
+        localStorage[typeHour] = "00:00";
       });
     },
     handleCopyToClipboard() {
-      if (!this.emptyValues()) {
-        this.copyToClipboard();
-        event.target.select();
-      }
+      this.copyToClipboard();
+      event.target.select();
     },
     changeHour(value) {
       if (!value.hour) {
-        delete localStorage[value.type];
+        localStorage[value.type] = "00:00";
         delete this.hours[value.type];
       } else {
         this.hours[value.type] = localStorage[value.type] = value.hour;
@@ -73,22 +73,15 @@ export default {
       this.formateHours();
     },
     formateHours: function() {
-      if (this.emptyValues()) {
-        this.stringTextHour = "";
-        return;
-      }
-
       var stringTextHour = "";
       this.typeHours.map(typeHour => {
-        stringTextHour += `${this.$moment().format("DD/MM/YYYY")} - ${
-          this.hours[typeHour]
-        } ${typeHour}\n`;
+        stringTextHour += `${this.$moment().format("DD/MM/YYYY")} - ${this
+          .hours[typeHour] || "00:00"} ${typeHour}\n`;
       });
 
       this.stringTextHour = stringTextHour.trim();
     },
     copyToClipboard: function() {
-      if (this.emptyValues()) return;
       this.$clipboard(this.stringTextHour);
     },
     emptyValues: function() {
@@ -109,16 +102,11 @@ export default {
     });
     this.stringTextHour = "";
 
-    console.log(localStorage);
+    this.formateHours();
   },
   watch: {
     checkDefaultValues: function(checked) {
       this.hours = checked ? this.defaultHours : {};
-    },
-    stringTextHour: function(text) {
-      this.textForTooltipClipboard = text.length
-        ? "Copied to clipboard"
-        : "Fill in all fields";
     },
     hours: function() {
       this.formateHours();
