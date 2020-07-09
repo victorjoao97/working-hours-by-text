@@ -133,7 +133,7 @@ textarea {
   font-family: "Montserrat", sans-serif;
 }
 body {
-  background-color: #223127;
+  background-color: #212121;
   text-rendering: optimizeLegibility;
 }
 html,
