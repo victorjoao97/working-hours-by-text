@@ -1,7 +1,10 @@
-# working-hours-by-text
+# working-hours-by-text [View on Heroku](https://working-hours-text.herokuapp.com/)
 Aplicação simples para gerar o horário diário para texto
 
 <i>Simple application to generate daily schedule for text</i>
+
+![Screenshot](./public/Screenshot.png)
+
 ## Project setup
 ```
 yarn install
