@@ -15,7 +15,7 @@
           <button v-if="false" @click.prevent="clearAllInputs">Clear All Inputs</button>
         </div>
         <div id="textareaHours">
-          <p v-show="!emptyValues()">Hover to clipboard</p>
+          <p>Hover to clipboard</p>
           <textarea
             v-tooltip="{content: 'Copied to clipboard', placement: 'bottom'}"
             cols="30"
@@ -38,6 +38,7 @@
 
 <script>
 import InputHour from "./components/InputHour";
+
 export default {
   components: {
     InputHour
@@ -83,9 +84,6 @@ export default {
     },
     copyToClipboard: function() {
       this.$clipboard(this.stringTextHour);
-    },
-    emptyValues: function() {
-      return this.typeHours.length !== Object.keys(this.hours).length;
     }
   },
   created() {
@@ -113,6 +111,35 @@ export default {
     }
   }
 };
+
+function mouseMove() {
+  let { clientX, clientY } = event;
+
+  const later = () => {
+    let classList = document.querySelector("#application").classList;
+    classList.forEach(elm => classList.remove(elm));
+    let positionMouse = "";
+    let metadeAltura = window.innerHeight / 2;
+    let metadeLargura = window.innerWidth / 2;
+    if (clientX > metadeLargura) {
+      if (clientY > metadeAltura) {
+        positionMouse = "mousedownright";
+      } else {
+        positionMouse = "mouseupright";
+      }
+    } else {
+      if (clientY > metadeAltura) {
+        positionMouse = "mousedownleft";
+      } else {
+        positionMouse = "mouseupleft";
+      }
+    }
+    document.querySelector("#application").classList.add(positionMouse);
+  };
+
+  later();
+}
+window.addEventListener("mousemove", mouseMove);
 </script>
 
 <style lang="scss">
@@ -176,11 +203,24 @@ a {
 
   border-radius: 40px 20px;
   box-shadow: 12px 12px #645e9d;
+  transition: box-shadow 0.2s cubic-bezier(0.175, 0.885, 0.32, 2.275);
   h1,
   h2 {
     text-align: center;
     text-shadow: 2px 2px 20px #223127;
   }
+}
+#application.mouseupright {
+  box-shadow: 12px -12px #645e9d;
+}
+#application.mousedownright {
+  box-shadow: 12px 12px #645e9d;
+}
+#application.mouseupleft {
+  box-shadow: -12px -12px #645e9d;
+}
+#application.mousedownleft {
+  box-shadow: -12px 12px #645e9d;
 }
 h1,
 label,
