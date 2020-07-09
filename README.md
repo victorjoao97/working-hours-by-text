@@ -1,24 +1,36 @@
 # working-hours-by-text
-
+Aplicação simples para gerar o horário diário para texto
+<i>Simple application to generate daily schedule for text</i>
 ## Project setup
 ```
 yarn install
+or
+npm install
 ```
 
 ### Compiles and hot-reloads for development
 ```
 yarn serve
+or
+npm run serve
 ```
 
 ### Compiles and minifies for production
 ```
 yarn build
+or
+npm run build
 ```
 
 ### Lints and fixes files
 ```
 yarn lint
+or
+npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Run on node server (default port 5000 or port set in the environment)
+```
+yarn start
+or
+npm start
+```
