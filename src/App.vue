@@ -11,20 +11,22 @@
                         :key="index"
                         v-bind:label="label"
                         v-on:change-hour="changeHour($event)"
+                        v-bind:clearAllInputs="enableClearAllInputs"
                     ></input-hour>
-                    <button v-if="false" @click.prevent="clearAllInputs">Clear All Inputs</button>
+                    <button @click.prevent="clearAllInputs">Clear All Inputs</button>
                 </div>
                 <div id="textareaHours">
                     <p>Hover to clipboard</p>
                     <textarea
                         v-tooltip="{content: 'Copied to clipboard', placement: 'bottom'}"
                         cols="30"
-                        rows="10"
+                        rows="5"
                         :value="stringTextHour"
                         @mouseenter="handleCopyToClipboard"
                         @mouseover="handleCopyToClipboard"
                         readonly
                     ></textarea>
+                    <button @click.prevent="markPoint">Mark the point</button>
                 </div>
             </div>
             <h2>
@@ -47,18 +49,16 @@ export default {
         return {
             typeHours: ["Inicio", "Intervalo", "Retorno", "Saída"],
             hours: {},
-            entrada: "",
             defaultHours: {},
             checkDefaultValues: false,
-            stringTextHour: ""
+            stringTextHour: "",
+            enableClearAllInputs: false
         };
     },
     methods: {
         clearAllInputs() {
             this.hours = {};
-            this.typeHours.forEach(typeHour => {
-                localStorage[typeHour] = "00:00";
-            });
+            this.enableClearAllInputs = !this.enableClearAllInputs;
         },
         handleCopyToClipboard() {
             this.copyToClipboard();
@@ -66,7 +66,7 @@ export default {
         },
         changeHour(value) {
             if (!value.hour) {
-                localStorage[value.type] = "00:00";
+                localStorage[value.type] = "";
                 delete this.hours[value.type];
             } else {
                 this.hours[value.type] = localStorage[value.type] = value.hour;
@@ -85,22 +85,27 @@ export default {
         },
         copyToClipboard: function() {
             this.$clipboard(this.stringTextHour);
+        },
+        markPoint: function() {
+            for (const typeHour of this.typeHours) {
+                let now = this.$moment(new Date());
+                let hour = this.$moment(new Date(localStorage[typeHour]));
+                let diference = this.$moment.duration(now.diff(hour));
+
+                let diferenceHours = diference.asHours();
+                console.log(diferenceHours, now, hour, diference);
+                if (!localStorage[typeHour]) {
+                    this.hours[typeHour] = localStorage[
+                        typeHour
+                    ] = this.$moment().format("HH:mm");
+                    break;
+                }
+            }
+            this.formateHours();
         }
     },
     created() {
-        this.typeHours.forEach((typeHour, index, array) => {
-            let hour;
-            let ultimoIndex = array.length - 1;
-
-            if (index === 0) hour = "08:00";
-            else if (index - ultimoIndex === -2) hour = "12:26";
-            else if (index - ultimoIndex === -1) hour = "14:26";
-            else if (index === array.length - 1) hour = "18:00";
-
-            this.defaultHours[typeHour] = hour;
-        });
         this.stringTextHour = "";
-
         this.formateHours();
     },
     watch: {
@@ -109,6 +114,7 @@ export default {
         },
         hours: function() {
             this.formateHours();
+            console.log("mudou");
         }
     }
 };
@@ -189,6 +195,9 @@ a {
 #textareaHours {
     textarea {
         resize: none;
+    }
+    button {
+        display: block;
     }
 }
 #textareaHours p {
