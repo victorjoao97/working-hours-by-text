@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <label v-bind:for="idInput">{{label}}</label>
+      <label v-bind:for="idInput">{{$t(label)}}</label>
       <div>
         <the-mask
           v-bind:mask="maskHour"
@@ -11,7 +11,7 @@
           v-bind:placeholder="placeholderHour"
           v-model="hour"
         ></the-mask>
-        <button @click.prevent="clearValue" tabindex="-1">X</button>
+        <button @click.prevent="clearValue" :disabled="!hour.length" tabindex="-1">X</button>
       </div>
     </div>
   </div>
