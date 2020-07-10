@@ -1,18 +1,7 @@
 <template>
-    <div id="box">
+    <div style="display: flex">
         <div id="application">
-            <div class="langSelect">
-                <label for="lang">{{$t('lang')}}</label>
-                <select v-model="langSelected" id="lang">
-                    <option
-                        v-for="(lang, i) in langs"
-                        :key="`Lang${i}`"
-                        :value="lang"
-                        :selected="lang === langSelected"
-                    >{{ $t(lang) }}</option>
-                </select>
-            </div>
-            <h1>{{$t('appName')}}</h1>
+            <h1>Woking Hours by Text</h1>
             <div id="inputsTextarea">
                 <div id="inputsHours">
                     <input type="checkbox" v-if="false" v-model="checkDefaultValues" />
@@ -26,9 +15,9 @@
                     <button v-if="false" @click.prevent="clearAllInputs">Clear All Inputs</button>
                 </div>
                 <div id="textareaHours">
-                    <p>{{$t('clipboard')}}</p>
+                    <p>Hover to clipboard</p>
                     <textarea
-                        v-tooltip="{content: $t('copied'), placement: 'bottom'}"
+                        v-tooltip="{content: 'Copied to clipboard', placement: 'bottom'}"
                         cols="30"
                         rows="10"
                         :value="stringTextHour"
@@ -39,7 +28,7 @@
                 </div>
             </div>
             <h2>
-                {{$t('develop_by')}}
+                Develop by
                 <a href="//github.com/victorjoao97" target="_blank">João</a>
             </h2>
             <div v-if="false">{{hours}} - {{entrada}}</div>
@@ -61,12 +50,9 @@ export default {
             entrada: "",
             defaultHours: {},
             checkDefaultValues: false,
-            stringTextHour: "",
-            langs: ["en", "pt_br"],
-            langSelected: localStorage["langSelected"] || "pt_br"
+            stringTextHour: ""
         };
     },
-    computed: {},
     methods: {
         clearAllInputs() {
             this.hours = {};
@@ -80,7 +66,7 @@ export default {
         },
         changeHour(value) {
             if (!value.hour) {
-                // localStorage[value.type] = "00:00";
+                localStorage[value.type] = "00:00";
                 delete this.hours[value.type];
             } else {
                 this.hours[value.type] = localStorage[value.type] = value.hour;
@@ -89,11 +75,10 @@ export default {
         },
         formateHours: function() {
             var stringTextHour = "";
-            let now = this.$moment().format("DD/MM/YYYY");
-
             this.typeHours.map(typeHour => {
-                stringTextHour += `${now} - ${this.hours[typeHour] ||
-                    "00:00"} ${this.$t(typeHour)}\n`;
+                stringTextHour += `${this.$moment().format(
+                    "DD/MM/YYYY"
+                )} - ${this.hours[typeHour] || "00:00"} ${typeHour}\n`;
             });
 
             this.stringTextHour = stringTextHour.trim();
@@ -117,7 +102,6 @@ export default {
         this.stringTextHour = "";
 
         this.formateHours();
-        this.$i18n.locale = this.langSelected;
     },
     watch: {
         checkDefaultValues: function(checked) {
@@ -125,12 +109,6 @@ export default {
         },
         hours: function() {
             this.formateHours();
-        },
-        "$i18n.locale": function() {
-            this.formateHours();
-        },
-        langSelected: function(lang) {
-            localStorage["langSelected"] = this.$i18n.locale = lang;
         }
     }
 };
@@ -139,7 +117,6 @@ function mouseMove() {
     let { clientX, clientY } = event;
 
     const later = () => {
-        if (!document.querySelector("#application")) return;
         let classList = document.querySelector("#application").classList;
         classList.forEach(elm => classList.remove(elm));
         let positionMouse = "";
@@ -184,14 +161,7 @@ a {
     text-decoration: none;
     color: inherit;
 }
-#box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-}
 #inputsHours {
-    padding-right: 10px;
     .inputHour + .inputHour {
         margin-top: 7px;
     }
@@ -207,11 +177,9 @@ a {
             border-radius: 0px 4px 10px 0px;
             right: 0;
             background-color: #d2bf55;
-            &:not([disabled]) {
-                cursor: pointer;
-            }
+            cursor: pointer;
             font-weight: bold;
-            &:hover:not([disabled]) {
+            &:hover {
                 color: #9c0d38;
             }
         }
@@ -219,8 +187,6 @@ a {
 }
 
 #textareaHours {
-    padding-left: 10px;
-    display: grid;
     textarea {
         resize: none;
     }
@@ -230,9 +196,9 @@ a {
     margin-bottom: 7px;
 }
 #application {
-    // width: 500px;
-    // max-width: 90%;
-    // margin: 30px auto;
+    width: 500px;
+    max-width: 90%;
+    margin: 30px auto;
     background-color: #9c0d38;
     padding: 50px;
 
@@ -243,17 +209,6 @@ a {
     h2 {
         text-align: center;
         text-shadow: 2px 2px 20px #223127;
-    }
-
-    .langSelect {
-        text-align: right;
-        label {
-            margin-right: 10px;
-        }
-        select {
-            border: 0;
-            width: 38%;
-        }
     }
 }
 #application.mouseupright {
