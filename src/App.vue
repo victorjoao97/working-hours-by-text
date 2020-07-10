@@ -35,11 +35,13 @@
             </h2>
             <div v-if="false">{{hours}} - {{entrada}}</div>
         </div>
+        <notifications />
     </div>
 </template>
 
 <script>
 import InputHour from "./components/InputHour";
+import { setHours } from "./utils/hours";
 
 export default {
     components: {
@@ -86,21 +88,49 @@ export default {
         copyToClipboard: function() {
             this.$clipboard(this.stringTextHour);
         },
+        currentHourToLocalStorageAndData(typeHour) {
+            if (!typeHour) throw Error("No type hour passing");
+            this.hours[typeHour] = localStorage[
+                typeHour
+            ] = this.$moment().format("HH:mm");
+        },
         markPoint: function() {
-            for (const typeHour of this.typeHours) {
-                let now = this.$moment(new Date());
-                let hour = this.$moment(new Date(localStorage[typeHour]));
-                let diference = this.$moment.duration(now.diff(hour));
+            let onlyOne = true;
 
-                let diferenceHours = diference.asHours();
-                console.log(diferenceHours, now, hour, diference);
+            this.typeHours.forEach((typeHour, index, array) => {
                 if (!localStorage[typeHour]) {
-                    this.hours[typeHour] = localStorage[
-                        typeHour
-                    ] = this.$moment().format("HH:mm");
-                    break;
+                    if (index === 0) {
+                        this.currentHourToLocalStorageAndData(typeHour);
+                        onlyOne = false;
+                        return;
+                    }
+                    if (onlyOne) {
+                        let now = this.$moment(new Date());
+                        let hour = setHours(localStorage[array[index - 1]]);
+                        let diference = this.$moment.duration(now.diff(hour));
+
+                        let diferenceHours = diference.asHours();
+                        if (diferenceHours > 2) {
+                            this.currentHourToLocalStorageAndData(typeHour);
+                        } else {
+                            console.log("menos de 2 horas");
+                            this.$notify({
+                                title: "Important message",
+                                text: "menos de 2 horas"
+                            });
+                            this.$dialog
+                                .confirm("Please confirm to continue")
+                                .then(function(dialog) {
+                                    console.log("Clicked on proceed", dialog);
+                                })
+                                .catch(function() {
+                                    console.log("Clicked on cancel");
+                                });
+                        }
+                        onlyOne = false;
+                    }
                 }
-            }
+            });
             this.formateHours();
         }
     },
@@ -114,7 +144,6 @@ export default {
         },
         hours: function() {
             this.formateHours();
-            console.log("mudou");
         }
     }
 };
