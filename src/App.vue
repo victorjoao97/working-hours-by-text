@@ -22,20 +22,22 @@
                         :key="index"
                         v-bind:label="label"
                         v-on:change-hour="changeHour($event)"
+                        v-bind:clearAllInputs="enableClearAllInputs"
                     ></input-hour>
-                    <button v-if="false" @click.prevent="clearAllInputs">Clear All Inputs</button>
+                    <button @click.prevent="clearAllInputs">Clear All Inputs</button>
                 </div>
                 <div id="textareaHours">
                     <p>{{$t('clipboard')}}</p>
                     <textarea
                         v-tooltip="{content: $t('copied'), placement: 'bottom'}"
                         cols="30"
-                        rows="10"
+                        rows="5"
                         :value="stringTextHour"
                         @mouseenter="handleCopyToClipboard"
                         @mouseover="handleCopyToClipboard"
                         readonly
                     ></textarea>
+                    <button @click.prevent="markPoint">Mark the point</button>
                 </div>
             </div>
             <h2>
@@ -44,11 +46,13 @@
             </h2>
             <div v-if="false">{{hours}} - {{entrada}}</div>
         </div>
+        <notifications />
     </div>
 </template>
 
 <script>
 import InputHour from "./components/InputHour";
+import { setHours } from "./utils/hours";
 
 export default {
     components: {
@@ -58,21 +62,19 @@ export default {
         return {
             typeHours: ["Inicio", "Intervalo", "Retorno", "Saída"],
             hours: {},
-            entrada: "",
             defaultHours: {},
             checkDefaultValues: false,
             stringTextHour: "",
             langs: ["en", "pt_br"],
-            langSelected: localStorage["langSelected"] || "pt_br"
+            langSelected: localStorage["langSelected"] || "pt_br",
+            enableClearAllInputs: false
         };
     },
     computed: {},
     methods: {
         clearAllInputs() {
             this.hours = {};
-            this.typeHours.forEach(typeHour => {
-                localStorage[typeHour] = "00:00";
-            });
+            this.enableClearAllInputs = !this.enableClearAllInputs;
         },
         handleCopyToClipboard() {
             this.copyToClipboard();
@@ -80,7 +82,7 @@ export default {
         },
         changeHour(value) {
             if (!value.hour) {
-                // localStorage[value.type] = "00:00";
+                localStorage[value.type] = "";
                 delete this.hours[value.type];
             } else {
                 this.hours[value.type] = localStorage[value.type] = value.hour;
@@ -100,22 +102,55 @@ export default {
         },
         copyToClipboard: function() {
             this.$clipboard(this.stringTextHour);
+        },
+        currentHourToLocalStorageAndData(typeHour) {
+            if (!typeHour) throw Error("No type hour passing");
+            this.hours[typeHour] = localStorage[
+                typeHour
+            ] = this.$moment().format("HH:mm");
+        },
+        markPoint: function() {
+            let onlyOne = true;
+
+            this.typeHours.forEach((typeHour, index, array) => {
+                if (!localStorage[typeHour]) {
+                    if (index === 0) {
+                        this.currentHourToLocalStorageAndData(typeHour);
+                        onlyOne = false;
+                        return;
+                    }
+                    if (onlyOne) {
+                        let now = this.$moment(new Date());
+                        let hour = setHours(localStorage[array[index - 1]]);
+                        let diference = this.$moment.duration(now.diff(hour));
+
+                        let diferenceHours = diference.asHours();
+                        if (diferenceHours > 2) {
+                            this.currentHourToLocalStorageAndData(typeHour);
+                        } else {
+                            console.log("menos de 2 horas");
+                            this.$notify({
+                                title: "Important message",
+                                text: "menos de 2 horas"
+                            });
+                            this.$dialog
+                                .confirm("Please confirm to continue")
+                                .then(function(dialog) {
+                                    console.log("Clicked on proceed", dialog);
+                                })
+                                .catch(function() {
+                                    console.log("Clicked on cancel");
+                                });
+                        }
+                        onlyOne = false;
+                    }
+                }
+            });
+            this.formateHours();
         }
     },
     created() {
-        this.typeHours.forEach((typeHour, index, array) => {
-            let hour;
-            let ultimoIndex = array.length - 1;
-
-            if (index === 0) hour = "08:00";
-            else if (index - ultimoIndex === -2) hour = "12:26";
-            else if (index - ultimoIndex === -1) hour = "14:26";
-            else if (index === array.length - 1) hour = "18:00";
-
-            this.defaultHours[typeHour] = hour;
-        });
         this.stringTextHour = "";
-
         this.formateHours();
         this.$i18n.locale = this.langSelected;
     },
@@ -223,6 +258,9 @@ a {
     display: grid;
     textarea {
         resize: none;
+    }
+    button {
+        display: block;
     }
 }
 #textareaHours p {
