@@ -10,6 +10,8 @@ import normalize from 'normalize.css'
 import messages from './locales'
 import Notifications from 'vue-notification'
 import VuejsDialog from 'vuejs-dialog'
+import VueGtag from "vue-gtag";
+
 
 import 'vuejs-dialog/dist/vuejs-dialog.min.css'
 
@@ -30,6 +32,9 @@ Vue.use(VuejsDialog, {
   okText: i18n.t('continue'),
   cancelText: i18n.t('close'),
 })
+Vue.use(VueGtag, {
+  config: { id: "UA-172412364-1" }
+});
 
 Vue.config.productionTip = false
 
