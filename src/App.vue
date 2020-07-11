@@ -115,7 +115,7 @@ export default {
             const MINORHOUR = 2;
 
             this.typeHours.forEach((typeHour, index, array) => {
-                if (!localStorage[typeHour]) {
+                if (!localStorage[typeHour] || localStorage[typeHour] == "00:00") {
                     if (index === 0) {
                         this.currentHourToLocalStorageAndData(typeHour);
                         onlyOne = false;
