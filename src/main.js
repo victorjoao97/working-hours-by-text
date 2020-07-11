@@ -18,26 +18,20 @@ Vue.use(VueMoment)
 Vue.use(Clipboard)
 Vue.use(VTooltip)
 Vue.use(VueI18n)
+
+const i18n = new VueI18n({
+  locale: localStorage['langSelected'] || 'pt_br',
+  messages
+})
+
 Vue.use(normalize)
 Vue.use(Notifications)
 Vue.use(VuejsDialog, {
-    okText: 'Continue',
-    cancelText: 'Close',
-    animation: 'zoom', // Available: "zoom", "bounce", "fade"
-    type: 'basic', // coming soon: 'soft', 'hard'
-    verification: 'continue', // for hard confirm, user will be prompted to type this to enable the proceed button
-    verificationHelp: 'Type "[+:verification]" below to confirm', // Verification help text. [+:verification] will be matched with 'options.verification' (i.e 'Type "continue" below to confirm')
-    clicksCount: 3, // for soft confirm, user will be asked to click on "proceed" btn 3 times before actually proceeding
-    backdropClose: false, // set to true to close the dialog when clicking outside of the dialog window, i.e. click landing on the mask
-    customClass: ''
+  okText: i18n.t('continue'),
+  cancelText: i18n.t('close'),
 })
 
 Vue.config.productionTip = false
-
-const i18n = new VueI18n({
-  locale: 'pt_br',
-  messages
-})
 
 new Vue({
   i18n,

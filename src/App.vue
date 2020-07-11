@@ -1,6 +1,6 @@
 <template>
     <div id="box">
-        <div id="application">
+        <div id="application" :key="unique">
             <div class="langSelect">
                 <label for="lang">{{$t('lang')}}</label>
                 <select v-model="langSelected" id="lang">
@@ -24,7 +24,7 @@
                         v-on:change-hour="changeHour($event)"
                         v-bind:clearAllInputs="enableClearAllInputs"
                     ></input-hour>
-                    <button @click.prevent="clearAllInputs">Clear All Inputs</button>
+                    <button @click.prevent="clearAllInputs">{{$t('clearAllInputs')}}</button>
                 </div>
                 <div id="textareaHours">
                     <p>{{$t('clipboard')}}</p>
@@ -37,7 +37,7 @@
                         @mouseover="handleCopyToClipboard"
                         readonly
                     ></textarea>
-                    <button @click.prevent="markPoint">Mark the point</button>
+                    <button @click.prevent="markPoint">{{$t('markPoint')}}</button>
                 </div>
             </div>
             <h2>
@@ -67,7 +67,8 @@ export default {
             stringTextHour: "",
             langs: ["en", "pt_br"],
             langSelected: localStorage["langSelected"] || "pt_br",
-            enableClearAllInputs: false
+            enableClearAllInputs: false,
+            unique: 1
         };
     },
     computed: {},
@@ -111,12 +112,14 @@ export default {
         },
         markPoint: function() {
             let onlyOne = true;
+            const MINORHOUR = 2;
 
             this.typeHours.forEach((typeHour, index, array) => {
                 if (!localStorage[typeHour]) {
                     if (index === 0) {
                         this.currentHourToLocalStorageAndData(typeHour);
                         onlyOne = false;
+                        window.location.reload();
                         return;
                     }
                     if (onlyOne) {
@@ -125,28 +128,31 @@ export default {
                         let diference = this.$moment.duration(now.diff(hour));
 
                         let diferenceHours = diference.asHours();
-                        if (diferenceHours > 2) {
+                        if (diferenceHours > MINORHOUR) {
                             this.currentHourToLocalStorageAndData(typeHour);
                         } else {
-                            console.log("menos de 2 horas");
-                            this.$notify({
-                                title: "Important message",
-                                text: "menos de 2 horas"
-                            });
+                            let currentHourToLocalStorageAndData = this
+                                .currentHourToLocalStorageAndData;
+                            let formateHours = this.formateHours;
                             this.$dialog
-                                .confirm("Please confirm to continue")
-                                .then(function(dialog) {
-                                    console.log("Clicked on proceed", dialog);
+                                .confirm(
+                                    this.$tc("confirmMinorHour", MINORHOUR, {
+                                        hour: MINORHOUR
+                                    })
+                                )
+                                .then(function() {
+                                    currentHourToLocalStorageAndData(typeHour);
+                                    formateHours();
+                                    window.location.reload();
                                 })
-                                .catch(function() {
-                                    console.log("Clicked on cancel");
-                                });
+                                .catch(function() {});
                         }
                         onlyOne = false;
                     }
                 }
             });
             this.formateHours();
+            this.$forceUpdate();
         }
     },
     created() {
@@ -202,6 +208,31 @@ window.addEventListener("mousemove", mouseMove);
 </script>
 
 <style lang="scss">
+@mixin hover {
+    &:hover {
+        box-shadow: 2px 2px 3px #000000b6;
+        @content;
+    }
+}
+@mixin button {
+    margin-top: 15px;
+    display: block;
+    width: 100%;
+    appearance: none;
+    background: #645e9d;
+    border: 0;
+    outline: none;
+    border-radius: 10px 5px;
+    padding: 10px;
+    font-weight: bold;
+    color: #ddf0ff;
+    box-shadow: 2px 2px 3px #0000007a;
+    cursor: pointer;
+
+    @include hover {
+        opacity: 0.9;
+    }
+}
 body,
 textarea {
     font-family: "Montserrat", sans-serif;
@@ -227,6 +258,9 @@ a {
 }
 #inputsHours {
     padding-right: 10px;
+    & > button {
+        @include button;
+    }
     .inputHour + .inputHour {
         margin-top: 7px;
     }
@@ -255,12 +289,11 @@ a {
 
 #textareaHours {
     padding-left: 10px;
-    display: grid;
     textarea {
         resize: none;
     }
     button {
-        display: block;
+        @include button;
     }
 }
 #textareaHours p {
@@ -268,9 +301,6 @@ a {
     margin-bottom: 7px;
 }
 #application {
-    // width: 500px;
-    // max-width: 90%;
-    // margin: 30px auto;
     background-color: #9c0d38;
     padding: 50px;
 
@@ -319,6 +349,8 @@ textarea {
     outline: none;
     border-radius: 10px 5px;
     padding: 7px;
+
+    @include hover;
 }
 #inputsTextarea {
     display: flex;

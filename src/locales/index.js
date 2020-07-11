@@ -10,7 +10,13 @@ export default {
         pt_br: "Portuguese",
         lang: "Language",
         clipboard: "Mouse over to copy it",
-        copied: "Copied to clipboard"
+        copied: "Copied to clipboard",
+        continue: "Continue",
+        close: "Close",
+        confirmMinorHour: "Less than {hour} hours apart, do you want to continue?",
+        titleConfirmMinorHour: "Small hour interval",
+        markPoint: "Make an appointment now",
+        clearAllInputs: "Clear All Inputs"
     },
     pt_br: {
         Inicio: "Inicio",
@@ -23,6 +29,13 @@ export default {
         pt_br: "Português do Brasil",
         lang: "Idioma",
         clipboard: "Passar o mouse para a copiar",
-        copied: "Copiado para área de transferência"
+        copied: "Copiado para área de transferência",
+        continue: "Continuar",
+        close: "Cancelar",
+        lastMinorHour: "Ultimo horário com menos de ",
+        confirmMinorHour: "@:lastMinorHour uma hora | @:lastMinorHour {hour} horas de diferença, você deseja continuar?",
+        titleConfirmMinorHour: "Intervalo de horas pequeno",
+        markPoint: "Marcar o horário agora mesmo",
+        clearAllInputs: "Limpar todos os campos"
     }
 }
